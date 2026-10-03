@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "helditemvisuals",
+  "version": "${version}",
+  "name": "Held Item Visuals",
+  "description": "Server-side for Cobblemon: Pokémon in battle visibly lose and gain held items (Knock Off, Thief, Trick, eaten berries, Fling...), and PvP battles can hide held items. Visual only; the real items are never changed.",
+  "authors": [
+    "Cobbleria"
+  ],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "dev.helditemvisuals.HeldItemVisuals"
+    ]
+  },
+  "mixins": [
+    "helditemvisuals.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*",
+    "cobblemon": ">=1.8.0"
+  }
+}

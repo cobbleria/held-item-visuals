@@ -1,0 +1,15 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "dev.helditemvisuals.mixin",
+  "plugin": "dev.helditemvisuals.mixin.HookPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BattleRegistryMixin",
+    "InstructionSetMixin",
+    "PokemonServerDelegateMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
