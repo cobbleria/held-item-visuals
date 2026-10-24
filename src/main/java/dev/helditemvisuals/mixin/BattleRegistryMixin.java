@@ -15,6 +15,7 @@ abstract class BattleRegistryMixin {
 	@Inject(method = "closeBattle", at = @At("HEAD"), require = 0)
 	private static void helditemvisuals$closeBattle(PokemonBattle battle, CallbackInfo ci) {
 		HeldItemVisuals.OVERRIDES.end(battle.getBattleId());
+		HeldItemVisuals.HIDDEN.unmark(battle.getBattleId());
 		ItemResolver.forget(battle.getBattleId());
 	}
 }

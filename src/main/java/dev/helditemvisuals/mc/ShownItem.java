@@ -10,7 +10,9 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import dev.helditemvisuals.HeldItemVisuals;
+import dev.helditemvisuals.api.HeldItemVisualsApi;
 import dev.helditemvisuals.logic.BattleItemState;
+import dev.helditemvisuals.logic.HideMarks;
 import dev.helditemvisuals.logic.ModConfig;
 import dev.helditemvisuals.logic.PvpRule;
 import net.minecraft.world.item.ItemStack;
@@ -32,12 +34,13 @@ public final class ShownItem {
 	 */
 	public static ItemStack adjust(PokemonEntity entity, ItemStack vanilla) {
 		ModConfig config = HeldItemVisuals.config();
-		if (!config.followBattleItemChanges && !config.hideHeldItemsInPvp) return vanilla;
+		boolean mayHide = config.hideHeldItemsInPvp || config.hideHeldItemsWhenRequested;
+		if (!config.followBattleItemChanges && !mayHide) return vanilla;
 		Pokemon pokemon = entity.getPokemon();
-		PokemonBattle battle = battleOf(entity, pokemon, config.hideHeldItemsInPvp);
+		PokemonBattle battle = battleOf(entity, pokemon, mayHide);
 		if (battle == null || battle.getEnded()) return vanilla;
 
-		if (config.hideHeldItemsInPvp && isPvp(battle)) return ItemStack.EMPTY;
+		if (mayHide && hides(config, battle)) return ItemStack.EMPTY;
 		if (!config.followBattleItemChanges || !pokemon.getHeldItemVisible()) return vanilla;
 
 		BattleItemState state = HeldItemVisuals.OVERRIDES.get(battle.getBattleId());
@@ -56,9 +59,9 @@ public final class ShownItem {
 	}
 
 	/**
-	 * The battle the entity's Pokémon is in. Normally the entity's battle id; for PvP hiding, during its first two
-	 * seconds in the world also the battle of its owner (covers a send-out before the entity is tagged with the
-	 * battle; limited to new entities because looking a player's battle up walks all battles).
+	 * The battle the entity's Pokémon is in. Normally the entity's battle id; for hiding (PvP, marked battles),
+	 * during its first two seconds in the world also the battle of its owner (covers a send-out before the entity is
+	 * tagged with the battle; limited to new entities because looking a player's battle up walks all battles).
 	 */
 	private static PokemonBattle battleOf(PokemonEntity entity, Pokemon pokemon, boolean viaOwner) {
 		UUID battleId = entity.getBattleId();
@@ -80,6 +83,13 @@ public final class ShownItem {
 			}
 		}
 		return null;
+	}
+
+	/** PvP or asked for by another mod, as far as the config follows them (the cheap check first). */
+	private static boolean hides(ModConfig config, PokemonBattle battle) {
+		boolean pvp = config.hideHeldItemsInPvp && isPvp(battle);
+		boolean requested = !pvp && config.hideHeldItemsWhenRequested && HeldItemVisualsApi.isRequested(battle);
+		return HideMarks.hides(config, pvp, requested);
 	}
 
 	static boolean isPvp(PokemonBattle battle) {

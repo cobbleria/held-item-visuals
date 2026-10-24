@@ -20,9 +20,11 @@ class ModConfigTest {
 		assertNull(loaded.problem());
 		assertTrue(loaded.config().followBattleItemChanges);
 		assertTrue(loaded.config().hideHeldItemsInPvp);
+		assertTrue(loaded.config().hideHeldItemsWhenRequested);
 		String written = Files.readString(file);
 		assertTrue(written.contains("\"followBattleItemChanges\": true"));
 		assertTrue(written.contains("\"hideHeldItemsInPvp\": true"));
+		assertTrue(written.contains("\"hideHeldItemsWhenRequested\": true"));
 	}
 
 	@Test
@@ -30,6 +32,8 @@ class ModConfigTest {
 		ModConfig config = ModConfig.fromJson("{\"hideHeldItemsInPvp\": false}");
 		assertTrue(config.followBattleItemChanges);
 		assertFalse(config.hideHeldItemsInPvp);
+		assertTrue(config.hideHeldItemsWhenRequested); // a 1.0 file without the key
+		assertFalse(ModConfig.fromJson("{\"hideHeldItemsWhenRequested\": false}").hideHeldItemsWhenRequested);
 		assertTrue(ModConfig.fromJson("{\"followBattleItemChanges\": \"yes\"}").followBattleItemChanges);
 	}
 

@@ -20,6 +20,8 @@ public final class ModConfig {
 	public boolean followBattleItemChanges = true;
 	/** In battles where every side has a player, battling Pokémon show no held item at all. */
 	public boolean hideHeldItemsInPvp = true;
+	/** Battles other mods mark through the API (e.g. a battle facility) show no held item at all either. */
+	public boolean hideHeldItemsWhenRequested = true;
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -51,6 +53,7 @@ public final class ModConfig {
 		JsonObject o = root.getAsJsonObject();
 		config.followBattleItemChanges = bool(o, "followBattleItemChanges", config.followBattleItemChanges);
 		config.hideHeldItemsInPvp = bool(o, "hideHeldItemsInPvp", config.hideHeldItemsInPvp);
+		config.hideHeldItemsWhenRequested = bool(o, "hideHeldItemsWhenRequested", config.hideHeldItemsWhenRequested);
 		return config;
 	}
 

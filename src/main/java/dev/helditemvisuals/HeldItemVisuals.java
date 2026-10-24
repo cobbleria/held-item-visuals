@@ -2,6 +2,7 @@ package dev.helditemvisuals;
 
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.battles.BattleRegistry;
+import dev.helditemvisuals.logic.HideMarks;
 import dev.helditemvisuals.logic.ModConfig;
 import dev.helditemvisuals.logic.OverrideRegistry;
 import dev.helditemvisuals.mc.ItemResolver;
@@ -17,7 +18,7 @@ import java.nio.file.Path;
 
 /**
  * Server side: what battling Pokémon are shown holding follows the battle (Knock Off, Thief, Trick, eaten berries
- * ...), and PvP battles can hide held items. Visual only — the real held items and the battle are never touched.
+ * ...), and PvP battles (and battles other mods mark) can hide held items. Visual only — the real held items and the battle are never touched.
  */
 public final class HeldItemVisuals implements ModInitializer {
 	public static final String MOD_ID = "helditemvisuals";
@@ -25,6 +26,8 @@ public final class HeldItemVisuals implements ModInitializer {
 
 	/** Overrides of every running battle. */
 	public static final OverrideRegistry OVERRIDES = new OverrideRegistry();
+	/** Battles other mods asked to show no held items in ({@link dev.helditemvisuals.api.HeldItemVisualsApi}). */
+	public static final HideMarks HIDDEN = new HideMarks();
 
 	private static volatile ModConfig config = new ModConfig();
 	private static int sweepTimer;
@@ -41,6 +44,7 @@ public final class HeldItemVisuals implements ModInitializer {
 		ServerLifecycleEvents.SERVER_STARTED.register(server -> HookPlugin.reportMissingHooks());
 		ServerLifecycleEvents.SERVER_STOPPED.register(server -> {
 			OVERRIDES.clear();
+			HIDDEN.clear();
 			ItemResolver.clearAll();
 		});
 		// safety net: drop the state of battles that ended without passing BattleRegistry.closeBattle
@@ -52,6 +56,10 @@ public final class HeldItemVisuals implements ModInitializer {
 				boolean over = battle == null || battle.getEnded();
 				if (over) ItemResolver.forget(id);
 				return over;
+			});
+			HIDDEN.removeIf(id -> {
+				PokemonBattle battle = BattleRegistry.getBattle(id);
+				return battle == null || battle.getEnded();
 			});
 		});
 	}
