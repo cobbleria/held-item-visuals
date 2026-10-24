@@ -25,6 +25,8 @@ thief. This mod makes the model follow the battle:
 - **PvP:** in a battle where every side has a player (1v1, 2v2, a player with an NPC partner against a player),
   the battling Pokémon show **no held item at all** for the whole battle. This is decided on the server, so the
   item is never sent to anyone's game: it cannot be read from the client.
+- **Other mods can ask for the same** for their own battles (for example a battle facility against NPC trainers
+  whose teams are meant to stay secret) through a small API, see [For other mods](#for-other-mods).
 
 **Visual only.** The real held items and the battle itself are never changed — what Cobblemon gives back,
 consumes or keeps after the battle is exactly the same as without this mod. Items Showdown does not know (a
@@ -44,7 +46,8 @@ works in singleplayer / LAN (the integrated server); on a client that joins anot
 ```json
 {
   "followBattleItemChanges": true,
-  "hideHeldItemsInPvp": true
+  "hideHeldItemsInPvp": true,
+  "hideHeldItemsWhenRequested": true
 }
 ```
 
@@ -52,6 +55,23 @@ works in singleplayer / LAN (the integrated server); on a client that joins anot
 |---|---|---|
 | `followBattleItemChanges` | `true` | the model follows items lost and gained in battle |
 | `hideHeldItemsInPvp` | `true` | battling Pokémon show no held item in player-versus-player battles |
+| `hideHeldItemsWhenRequested` | `true` | battling Pokémon show no held item in battles another mod marked through the API |
+
+### For other mods
+
+`dev.helditemvisuals.api.HeldItemVisualsApi` (server side; compile against the jar, check
+`FabricLoader.isModLoaded("helditemvisuals")` first):
+
+```java
+UUID battleId = ...; // right after starting the battle, before its first turn
+HeldItemVisualsApi.hideHeldItems(battleId);           // no held items in this battle; cleared when it ends
+HeldItemVisualsApi.addHideRule(battle -> isMine(battle)); // or a rule, asked every tick: keep it cheap
+```
+
+A hidden battle works exactly like a PvP battle: every battling Pokémon (both sides, the owner's own too, since
+the shown item is one value synced to everyone) shows no held item until the battle ends. `showHeldItems(battleId)`
+takes a mark back, `isRequested(battle)` tells whether a mark or a rule hides a battle, `VERSION` is the API
+version (1 since 1.1.0).
 
 ### How it works
 
@@ -103,6 +123,8 @@ Cobblemon では、ワールドにいるポケモンは持ち物を手に持っ�
 - **PvP:** すべての陣営にプレイヤーがいるバトル（1対1、2対2、NPC と組んだプレイヤー対プレイヤー）では、
   バトル中のポケモンは最初から最後まで**持ち物を表示しません**。サーバー側で決めているので、道具の情報は
   誰のゲームにも送られず、クライアント側から読み取ることもできません。
+- **ほかの MOD からも同じことを頼めます。** NPC トレーナーと戦うバトル施設など、手持ちを秘密にしたいバトルを
+  API（`dev.helditemvisuals.api.HeldItemVisualsApi`）で指定すると、PvP と同じく持ち物を表示しません。
 
 **見た目だけです。** 本当の持ち物やバトルの内容は一切変えません。バトル後に道具が戻る・なくなる・残るかは、
 この MOD がないときとまったく同じです。Showdown が知らない道具（見た目用の持ち物など）は、道具の追跡で
@@ -123,6 +145,7 @@ Cobblemon では、ワールドにいるポケモンは持ち物を手に持っ�
 |---|---|---|
 | `followBattleItemChanges` | `true` | バトルで道具がなくなったり手に入ったりしたら表示に反映する |
 | `hideHeldItemsInPvp` | `true` | プレイヤー同士のバトルでは、バトル中のポケモンの持ち物を表示しない |
+| `hideHeldItemsWhenRequested` | `true` | ほかの MOD が API で指定したバトルでは、バトル中のポケモンの持ち物を表示しない |
 
 ### ライセンス
 

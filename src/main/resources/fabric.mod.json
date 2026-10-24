@@ -3,7 +3,7 @@
   "id": "helditemvisuals",
   "version": "${version}",
   "name": "Held Item Visuals",
-  "description": "Server-side for Cobblemon: Pokémon in battle visibly lose and gain held items (Knock Off, Thief, Trick, eaten berries, Fling...), and PvP battles can hide held items. Visual only; the real items are never changed.",
+  "description": "Server-side for Cobblemon: Pokémon in battle visibly lose and gain held items (Knock Off, Thief, Trick, eaten berries, Fling...), and PvP battles (and battles other mods mark, such as battle facilities) can hide held items. Visual only; the real items are never changed.",
   "authors": [
     "Cobbleria"
   ],
